@@ -1,5 +1,25 @@
 """
 This module handles the authentication for the ESPN API.
+
+IMPORTANT: To use this scraper for your own private league, you MUST provide
+your own authentication cookies. Failure to do so will result in a 401 or 403
+(Unauthorized) error from the ESPN API.
+
+Follow these steps to get your cookie values:
+
+1.  Log in to your ESPN Fantasy Football league page in your web browser (e.g., Chrome, Edge, Firefox).
+2.  Open the browser's Developer Tools. You can usually do this by pressing F12 or right-clicking
+    on the page and selecting "Inspect".
+3.  Go to the "Application" tab (in Chrome/Edge) or the "Storage" tab (in Firefox).
+4.  In the left-hand menu, expand the "Cookies" section and select "https://fantasy.espn.com".
+5.  You will see a list of all cookies for the site. You need to find two of them:
+    - `espn_s2`: Find this in the list and copy its entire "Cookie Value".
+    - `SWID`: Find this in the list and copy its "Cookie Value".
+6.  Paste these values into the `COOKIES` dictionary below, replacing the existing placeholder values.
+
+The `HEADERS` dictionary contains the `x-fantasy-filter`, which tells the API to return
+all players (free agents, on waivers, and on a team). You generally won't need to
+change this unless you want to experiment with different filters.
 """
 
 # It's recommended to use environment variables or a config file for sensitive data.
