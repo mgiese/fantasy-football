@@ -19,9 +19,9 @@ COOKIES = {
 }
 
 
-# Header to fetch all players
+# Header to fetch all players, sorted by rank
 HEADERS = {
-    'x-fantasy-filter': '{"players":{"filterStatus":{"value":["FREEAGENT","WAIVERS","ONTEAM"]},"filterSlotIds":{"value":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,23,24]},"limit":2000,"sortPercOwned":{"sortAsc":false,"sortPriority":1},"sortDraftRanks":{"sortPriority":100,"sortAsc":true,"value":"STANDARD"}}}'
+    'x-fantasy-filter': '{"players":{"filterStatus":{"value":["FREEAGENT","WAIVERS","ONTEAM"]},"sortDraftRanks":{"sortPriority":1,"sortAsc":true,"value":"STANDARD"},"limit":2000}}'
 }
 
 
@@ -32,6 +32,9 @@ POSITION_MAP = {
     14: 'DB', 15: 'DP', 16: 'D/ST', 17: 'K', 18: 'P', 19: 'HC',
     20: 'Bench', 21: 'IR', 23: 'Flex'
 }
+
+# Positions to filter out for the 'PrimaryPosition' field
+FILTER_POSITIONS = {3, 5, 7, 20, 21, 23}
 
 PRO_TEAM_MAP = {
     0: 'Free Agent', 1: 'ATL', 2: 'BUF', 3: 'CHI', 4: 'CIN', 5: 'CLE',
@@ -76,31 +79,47 @@ def main():
     print(f"Found {len(all_players_data)} total players in the league pool.")
 
     processed_players = []
-    for p_container in all_players_data:
+    positional_rank_counters = {}
+    
+    for overall_rank, p_container in enumerate(all_players_data, 1):
         p_info = p_container.get('player', {})
         if not p_info:
             continue
 
         player_id = p_info.get('id')
         
+        # Determine primary position for ranking
+        primary_positions = [pos for pos in p_info.get('eligibleSlots', []) if pos not in FILTER_POSITIONS]
+        primary_pos_str = POSITION_MAP.get(primary_positions[0], 'N/A') if primary_positions else 'N/A'
+        
+        # Increment and assign positional rank
+        positional_rank_counters[primary_pos_str] = positional_rank_counters.get(primary_pos_str, 0) + 1
+        positional_rank = positional_rank_counters[primary_pos_str]
+
         # Get stats
         season_stats = next((s for s in p_info.get('stats', []) if s.get('id') == '002024'), {})
         projected_stats = next((s for s in p_info.get('stats', []) if s.get('id') == '102025'), {})
 
+        # Get ownership and draft rank data
+        ownership_data = p_info.get('ownership', {})
+        draft_ranks = p_info.get('draftRanksByRankType', {}).get('STANDARD', {})
+
         processed_players.append({
+            'OverallRank': overall_rank,
+            'PositionalRank': positional_rank,
             'PlayerID': player_id,
             'PlayerName': p_info.get('fullName'),
             'FantasyTeam': player_team_map.get(player_id, 'Free Agent'),
             'Status': p_container.get('status'),
-            'InjuryStatus': p_info.get('injuryStatus'),
-            'Positions': ', '.join([POSITION_MAP.get(pos, str(pos)) for pos in p_info.get('eligibleSlots', [])]),
+            'PrimaryPosition': primary_pos_str,
             'ProTeam': PRO_TEAM_MAP.get(p_info.get('proTeamId'), 'N/A'),
+            'ADP': ownership_data.get('averageDraftPosition'),
+            'AuctionValue': draft_ranks.get('auctionValue'),
             'ProjectedPoints': projected_stats.get('appliedTotal'),
             '2024_TotalPoints': season_stats.get('appliedTotal'),
             '2024_AvgPoints': season_stats.get('appliedAverage'),
-            'PercentOwned': p_info.get('ownership', {}).get('percentOwned'),
-            'PercentStarted': p_info.get('ownership', {}).get('percentStarted'),
-            'PercentChange': p_info.get('ownership', {}).get('percentChange')
+            'PercentOwned': ownership_data.get('percentOwned'),
+            'PercentStarted': ownership_data.get('percentStarted'),
         })
 
     # Write to CSV
@@ -115,7 +134,7 @@ def main():
         writer.writeheader()
         writer.writerows(processed_players)
     
-    print("Done!")
+    print("Done! New CSV with rankings is ready.")
 
 
 if __name__ == '__main__':
