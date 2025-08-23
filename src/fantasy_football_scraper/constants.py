@@ -2,9 +2,14 @@
 This module contains constant values used throughout the fantasy football scraper application.
 """
 
+# --- API Configuration ---
+LEAGUE_ID = 997575
+SEASON_ID = 2025
+
 # --- API Endpoints ---
-LEAGUE_URL = "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2025/segments/0/leagues/997575?view=mRoster&view=mTeam"
-PLAYERS_URL = "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2025/segments/0/leagues/997575?scoringPeriodId=0&view=kona_player_info"
+# These URLs are constructed using the LEAGUE_ID and SEASON_ID defined above.
+LEAGUE_URL = f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{SEASON_ID}/segments/0/leagues/{LEAGUE_ID}?view=mRoster&view=mTeam"
+PLAYERS_URL = f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{SEASON_ID}/segments/0/leagues/{LEAGUE_ID}?scoringPeriodId=0&view=kona_player_info"
 
 # --- Output ---
 OUTPUT_CSV_FILE = 'fantasy_players.csv'

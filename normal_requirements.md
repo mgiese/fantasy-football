@@ -35,11 +35,12 @@ Failure to provide valid cookies will result in a 401 or 403 (Unauthorized) erro
 The application also sends a specific `x-fantasy-filter` header to ensure all players (free agents, on waivers, and on a team) are returned by the API. This is pre-configured in `src/fantasy_fantasy_football_scraper/auth.py` and generally does not need to be changed.
 
 #### 2.2. Data Acquisition
-The application will make HTTP GET requests to the ESPN Fantasy API.
-*   **League Data:** It will fetch league settings and team rosters from the `m_league` view endpoint. This is used to determine which players are on which fantasy teams.
-    *   URL: `https://fantasy.espn.com/apis/v3/games/ffl/seasons/2025/segments/0/leagues/{LEAGUE_ID}?view=m_league_seasons&view=m_roster`
-*   **Player Data:** It will fetch a list of all players from the `m_player` view endpoint. This contains player metadata, stats, and projections.
-    *   URL: `https://fantasy.espn.com/apis/v3/games/ffl/seasons/2025/segments/0/leagues/{LEAGUE_ID}?view=m_player_info`
+The application makes HTTP GET requests to the specific ESPN Fantasy API endpoints that provide the necessary data feeds. The base URLs are constructed dynamically using the `LEAGUE_ID` and `SEASON_ID` from the `constants.py` file.
+
+*   **League Data:** It will fetch league settings and team rosters. The `view=mRoster` and `view=mTeam` parameters are used to get the necessary roster and team details.
+    *   URL: `https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{SEASON_ID}/segments/0/leagues/{LEAGUE_ID}?view=mRoster&view=mTeam`
+*   **Player Data:** It will fetch a list of all players. The `view=kona_player_info` parameter is crucial as it returns the comprehensive player data needed for the application.
+    *   URL: `https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{SEASON_ID}/segments/0/leagues/{LEAGUE_ID}?scoringPeriodId=0&view=kona_player_info`
 
 #### 2.3. Data Processing
 The script will perform the following processing steps:
