@@ -8,31 +8,56 @@ Use SOLID (or python equivalent) design philosphy, including writing unit tests 
 
 ### 2. Functional Requirements
 
-#### 2.1. Configuration and Authentication
+#### 2.1. Configuration and Authentication: A Deep Dive
 
-The application requires configuration to access a private ESPN Fantasy Football league. This is handled in the `src/fantasy_football_scraper/auth.py` and `src/fantasy_football_scraper/constants.py` files.
+Accessing private league data from the ESPN API is the most critical and error-prone part of this application. Unlike public APIs, there is no simple API key. Instead, the application must impersonate a logged-in user who is a member of the target league. This is achieved by sending the user's browser cookies along with each request.
 
-**Required Values:**
+**If these steps are not followed precisely, the API will return a `401 Unauthorized` or `403 Forbidden` error.**
 
-*   **`LEAGUE_ID`**: The unique identifier for your ESPN fantasy league. This must be updated in `src/fantasy_football_scraper/constants.py`.
-*   **Authentication Cookies**: To access private league data, you must provide your personal ESPN authentication cookies.
+**A. Core Configuration (`constants.py`)**
 
-**How to get your Authentication Cookies:**
+These values must be set correctly in `src/fantasy_football_scraper/constants.py`:
 
-Failure to provide valid cookies will result in a 401 or 403 (Unauthorized) error from the ESPN API.
+*   `LEAGUE_ID`: The unique identifier for your ESPN fantasy league. You can find this in the URL of your league's homepage (e.g., `.../leagues/LEAGUE_ID`).
+*   `SEASON_ID`: The year of the fantasy season you are targeting (e.g., `2025`).
 
-1.  Log in to your ESPN Fantasy Football league page in your web browser (e.g., Chrome, Edge, Firefox).
-2.  Open the browser's Developer Tools. You can usually do this by pressing F12 or right-clicking on the page and selecting "Inspect".
-3.  Go to the "Application" tab (in Chrome/Edge) or the "Storage" tab (in Firefox).
-4.  In the left-hand menu, expand the "Cookies" section and select `https://fantasy.espn.com`.
-5.  You will see a list of all cookies for the site. You need to find two of them:
-    *   `espn_s2`: Find this in the list and copy its entire "Cookie Value".
-    *   `SWID`: Find this in the list and copy its "Cookie Value".
-6.  Paste these values into the `COOKIES` dictionary within the `src/fantasy_football_scraper/auth.py` file, replacing the placeholder values.
+**B. Authentication Cookies (`auth.py`)**
 
-**API Headers:**
+The application authenticates using two specific cookies that ESPN sets in your browser when you log in.
 
-The application also sends a specific `x-fantasy-filter` header to ensure all players (free agents, on waivers, and on a team) are returned by the API. This is pre-configured in `src/fantasy_fantasy_football_scraper/auth.py` and generally does not need to be changed.
+*   `SWID`: This acts as your unique user identifier across ESPN services.
+*   `espn_s2`: This is your session token, proving you have an active login session.
+
+**Step-by-Step Guide to Retrieving Your Cookies:**
+
+1.  **Use a Standard Browser Window**: Do NOT use an Incognito or Private window. Log in to your ESPN Fantasy Football league page normally.
+2.  **Open Developer Tools**: Once you are on your league's main page, open your browser's Developer Tools.
+    *   **Shortcut**: Press `F12` (or `Cmd+Option+I` on Mac).
+    *   **Menu**: Right-click anywhere on the page and select "Inspect".
+3.  **Navigate to Cookie Storage**:
+    *   In **Chrome** or **Edge**: Go to the "Application" tab.
+    *   In **Firefox**: Go to the "Storage" tab.
+4.  **Find the ESPN Cookies**:
+    *   In the left-hand panel, look for the "Storage" section, expand "Cookies", and click on the entry for `https://fantasy.espn.com`.
+5.  **Locate and Copy the Values**: You will see a table of all cookies for the site. You must find two and copy their **full, exact `Value` / `Cookie Value`**.
+    *   Find the row for `espn_s2`. Copy the long string of characters from the "Value" column.
+    *   Find the row for `SWID`. Copy the GUID-like string (e.g., `{ABC-123-...}`) from the "Value" column.
+    *   **Common Pitfall**: Do not copy the cookie name or any other column. Only the value is needed.
+6.  **Update `auth.py`**:
+    *   Open the `src/fantasy_football_scraper/auth.py` file.
+    *   Paste the values you copied into the `COOKIES` dictionary, replacing the placeholder strings.
+
+**Important Notes:**
+*   **Confidentiality**: These cookies are sensitive. Do not share them or commit them to a public repository. It is best practice to add `src/fantasy_football_scraper/auth.py` to your `.gitignore` file to prevent accidental commits.
+*   **Expiration**: The `espn_s2` cookie will eventually expire. If you start getting authentication errors after a period of success, the first step is to repeat this process to get a fresh cookie.
+
+**C. Critical API Header (`auth.py`)**
+
+Authentication gets you in the door, but you still need to ask for the right data. The `x-fantasy-filter` header tells the ESPN API exactly which players to return.
+
+*   **Purpose**: Without this header, the API returns a very limited, default set of players (e.g., only the top-ranked free agents).
+*   **Configuration**: This is pre-configured in the `HEADERS` dictionary in `src/fantasy_football_scraper/auth.py` to request all players: free agents, players on waivers, and players on a team roster.
+*   **Modification**: You should not need to change this header unless you are an advanced user experimenting with different API filters.
 
 #### 2.2. Data Acquisition
 The application makes HTTP GET requests to the specific ESPN Fantasy API endpoints that provide the necessary data feeds. The base URLs are constructed dynamically using the `LEAGUE_ID` and `SEASON_ID` from the `constants.py` file.
