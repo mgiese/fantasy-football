@@ -1,0 +1,15 @@
+{
+    "teams": [
+        {
+            "location": "Team",
+            "nickname": "user",
+            "roster": {
+                "entries": [
+                    {
+                        "playerId": 3916387
+                    }
+                ]
+            }
+        }
+    ]
+}

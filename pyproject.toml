@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "fantasy-football-scraper"
+version = "0.1.0"
+description = "A scraper for ESPN fantasy football leagues."
+authors = ["GitHub Copilot <copilot@github.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+requests = "^2.31.0"
+rich = "^13.7.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pylint = "^2.17.5"
+autopep8 = "^2.0.4"
+unittest-xml-reporting = "^3.2.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

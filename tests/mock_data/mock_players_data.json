@@ -1,0 +1,46 @@
+{
+    "players": [
+        {
+            "player": {
+                "id": 4362628,
+                "fullName": "Ja'Marr Chase",
+                "eligibleSlots": [
+                    4,
+                    5,
+                    23
+                ],
+                "proTeamId": 4,
+                "ownership": {
+                    "averageDraftPosition": 1.5
+                },
+                "draftRanksByRankType": {
+                    "STANDARD": {
+                        "auctionValue": 57
+                    }
+                },
+                "stats": []
+            }
+        },
+        {
+            "player": {
+                "id": 4430807,
+                "fullName": "Bijan Robinson",
+                "eligibleSlots": [
+                    2,
+                    3,
+                    23
+                ],
+                "proTeamId": 1,
+                "ownership": {
+                    "averageDraftPosition": 2.9
+                },
+                "draftRanksByRankType": {
+                    "STANDARD": {
+                        "auctionValue": 56
+                    }
+                },
+                "stats": []
+            }
+        }
+    ]
+}
