@@ -1,0 +1,8 @@
+# This file is intentionally left blank. It is used to load local authentication details.
+# Create a copy of this file named `local_auth.py` and add your cookies to it.
+# This file should not be committed to version control.
+
+COOKIES = {
+    "espn_s2": "YOUR_ESPN_S2_COOKIE",
+    "SWID": "YOUR_SWID_COOKIE"
+}

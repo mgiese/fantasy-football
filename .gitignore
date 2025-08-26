@@ -1,0 +1,6 @@
+# Python
+__pycache__/
+*.pyc
+
+# Local authentication
+src/fantasy_football_scraper/local_auth.py
