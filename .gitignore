@@ -4,3 +4,7 @@ __pycache__/
 
 # Local authentication
 src/fantasy_football_scraper/local_auth.py
+src/fantasy_football_scraper/__pycache__/
+
+fandraft-cheatsheet-D12 - 2025-2025-08-19.csv
+fantasy_players.csv
